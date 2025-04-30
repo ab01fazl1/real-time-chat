@@ -10,6 +10,7 @@ func Main() {
 	router := gin.Default()
 
 	router.POST("/register", user.Register)
+	router.POST("/login", user.Login)
 	
 	router.Run(":8080") // port 8080
 }

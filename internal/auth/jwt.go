@@ -15,7 +15,7 @@ func CreateAccessToken(username string) (string, error) {
         "username": username, 
         "exp": time.Now().Add(time.Hour * 24).Unix(), 
         })
-	tokenString, err := token.SignedString(secretKey)
+	tokenString, err := token.SignedString([]byte(secretKey))
 	if err != nil {
 		return "", err
 	}
