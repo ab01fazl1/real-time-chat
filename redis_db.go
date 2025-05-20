@@ -1,20 +1,12 @@
-package storage
+package main
 
 import (
-	// "log"
+	redis "github.com/redis/go-redis/v9"
 	"os"
-
-	// "github.com/joho/godotenv"
-	"github.com/redis/go-redis/v9"
 )
 
-
-//InitRedis ...
+// InitRedis ...
 func GetDb() *redis.Client {
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	log.Fatal("Error loading .env file")
-	// }
 	var redisHost = os.Getenv("REDIS_HOST")
 	var redisPassword = os.Getenv("REDIS_PASSWORD")
 
@@ -25,5 +17,4 @@ func GetDb() *redis.Client {
 	})
 
 	return RedisClient
-
 }

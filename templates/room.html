@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Go Chat</title>
+</head>
+<body>
+    <!-- chatroom name down here  -->
+    <h1>Chat Room: </h1>
+
+    <!-- load messages down here  -->
+    <div id="chat-box" style="border:1px solid #000; height:300px; overflow:auto;">
+        <ul id="messages"></ul>
+    </div>
+
+    <!-- box to send messages  -->
+    <form id="chat-form" onsubmit="sendMessage(event)">
+        <input type="text" id="message" placeholder="Your message" required>
+        <button type="submit">Send</button>
+    </form>
+
+    <!-- simple script for the ws connection  -->
+    <script>
+        // grab messages from the backend
+        
+        // create a new WebSocket connection
+        let ws = new WebSocket("ws://" + window.location.host + "/ws");
+
+        ws.onmessage = function(event) {
+            const msg = JSON.parse(event.data);
+            const li = document.createElement("li");
+            li.textContent = `${msg.username}: ${msg.content}`;
+            document.getElementById("messages").appendChild(li);
+        };
+
+        function sendMessage(event) {
+            event.preventDefault();
+
+            // this piece of code is insecure, instead read from element, for example h1 tag up above
+            const roomId = window.location.pathname.split("/").pop();
+
+
+            const user = document.getElementById("username").value;
+            const content  = document.getElementById("message").value;
+            ws.send(JSON.stringify({ user, content, roomId }));
+            document.getElementById("message").value = "";
+        }
+    </script>
+</body>
+</html>
