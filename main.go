@@ -39,24 +39,22 @@ func main() {
 	r.LoadHTMLGlob("templates/*")
 
 	// routes
-	r.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "home.html", nil)
-	})
+	// r.GET("/", func(c *gin.Context) {
+		// c.HTML(http.StatusOK, "home.html", nil)
+	// })
 
-	r.POST("/rooms", CreateRoom)
+	r.POST("/createroom", CreateRoom)
 
 	r.GET("/rooms/:id", GetRoom)
 
-	r.GET("/rooms/:id/messages", GetRoomMessages)
-
-	r.GET("/ws", wsHandler)
+	r.GET("/ws", func(c *gin.Context) {
+		wsHandler(c.Writer, c.Request)
+	})
 
 	r.Run(":8080")
 }
 
-func wsHandler(c *gin.Context) {
-	w := c.Writer
-	r := c.Request
+func wsHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return
@@ -70,7 +68,7 @@ func wsHandler(c *gin.Context) {
 	for {
 		var msg CreateMessageRequest
 		err := conn.ReadJSON(&msg)
-		CreateMessage(c, msg)
+		// CreateMessage(c, msg)
 		if err != nil {
 			mutex.Lock()
 			delete(clients, conn)
@@ -149,38 +147,18 @@ func GetRoom(c *gin.Context) {
 
 	// check if room exists
 	var redisClient = GetDb()
-	room, err := redisClient.HGetAll(c, "room:"+roomId).Result()
+	_, err := redisClient.HGetAll(c, "room:"+roomId).Result()
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Room not found"})
 		return
 	}
-
-	// For this example, we'll just return it
-	c.JSON(http.StatusOK, room)
-}
-
-func GetRoomMessages(c *gin.Context) {
-	roomId := c.Param("id")
-
-	var redisClient = GetDb()
+	
+	// get room messages
 	messages, err := redisClient.HGetAll(c, "room:"+roomId+"messages").Result()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get messages"})
 		return
 	}
 
-	c.JSON(http.StatusOK, messages)
-
-	// var messageList []Message
-	// for _, message := range messages {
-	// 	var msg Message
-	// 	err := json.Unmarshal([]byte(message), &msg)
-	// 	if err != nil {
-	// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal message"})
-	// 		return nil
-	// 	}
-	// 	messageList = append(messageList, msg)
-	// }
-
-	// return messageList
+	c.HTML(http.StatusOK, "room.html", messages)
 }

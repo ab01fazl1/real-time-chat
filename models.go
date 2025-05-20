@@ -1,19 +1,19 @@
 package main
 
-type User struct {
-	Username string `json:"username"`
-}
+// type User struct {
+// 	Username string `json:"username"`
+// }
 
 type Message struct {
 	Id        string `json:"id" redis:"id"`
-	User      User   `json:"user" redis:"user"`
+	User      string   `json:"user" redis:"user"`
 	Content   string `json:"content" redis:"content"`
 	CreatedAt string `json:"created_at" redis:"created_at"`
 	RoomId    string `json:"room_id" redis:"room_id"`
 }
 
 type CreateMessageRequest struct {
-	User    User   `json:"user"`
+	User    string   `json:"user"`
 	Content string `json:"content"`
 	RoomId  string `json:"room_id"`
 }
